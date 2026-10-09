@@ -8,6 +8,13 @@
       "when": 1791561665114,
       "tag": "0000_sketchboard_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791561676989,
+      "tag": "0001_sketches_read_authenticated",
+      "breakpoints": true
     }
   ]
 }
