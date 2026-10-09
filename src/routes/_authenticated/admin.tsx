@@ -45,7 +45,7 @@ function AdminPage() {
     e.preventDefault();
     const sub = new Date(form.submission_deadline);
     const vote = new Date(form.voting_deadline);
-    if (vote < sub) return toast.error("Voting deadline must be after the submission deadline.");
+    if (vote < sub) return void toast.error("Voting deadline must be after the submission deadline.");
     setBusy(true);
     const { error } = await supabase.from("weeks").insert({
       week_number: Number(form.week_number),
@@ -55,7 +55,7 @@ function AdminPage() {
       voting_deadline: vote.toISOString(),
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     toast.success("Week created");
     setForm({ week_number: "", title: "", prompt: "", submission_deadline: "", voting_deadline: "" });
     qc.invalidateQueries({ queryKey: ["weeks"] });
@@ -64,7 +64,7 @@ function AdminPage() {
   async function remove(id: string, label: string) {
     if (!confirm(`Delete ${label}? All its sketches and likes will be removed.`)) return;
     const { error } = await supabase.from("weeks").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["weeks"] });
   }
 

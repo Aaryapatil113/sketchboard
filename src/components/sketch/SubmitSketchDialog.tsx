@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ALLOWED_TYPES, MAX_FILE_BYTES, type Sketch, type Week } from "@/lib/data";
 
-export function SubmitSketchDialog({ week, userId, existing }: { week: Week; userId: string; existing?: Sketch }) {
+export function SubmitSketchDialog({ week, userId, existing }: { week: Week; userId: string; existing?: Sketch | undefined }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
