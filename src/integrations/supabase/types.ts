@@ -14,16 +14,171 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      likes: {
+        Row: {
+          created_at: string
+          submission_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          submission_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          submission_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      submissions: {
+        Row: {
+          alt_text: string
+          created_at: string
+          description: string
+          id: string
+          image_path: string
+          title: string
+          updated_at: string
+          user_id: string
+          week_id: string
+        }
+        Insert: {
+          alt_text: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_path: string
+          title: string
+          updated_at?: string
+          user_id: string
+          week_id: string
+        }
+        Update: {
+          alt_text?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_path?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          week_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weeks: {
+        Row: {
+          created_at: string
+          id: string
+          prompt: string
+          submission_deadline: string
+          title: string
+          voting_deadline: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prompt?: string
+          submission_deadline: string
+          title: string
+          voting_deadline: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prompt?: string
+          submission_deadline?: string
+          title?: string
+          voting_deadline?: string
+          week_number?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +305,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "student"],
+    },
   },
 } as const
