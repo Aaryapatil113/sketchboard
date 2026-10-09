@@ -54,21 +54,48 @@ export function SubmitSketchDialog({ week, userId, existing }: { week: Week; use
         image_path = path;
       }
       const fields = { title: title.trim(), description: description.trim(), alt_text: altText.trim(), image_path: image_path! };
-      if (existing) {
-        const { error } = await supabase.from("submissions").update(fields).eq("id", existing.id);
+
+      // Look up the student's current row for this week (the gallery list may be stale)
+      let current: { id: string; image_path: string } | null = existing
+        ? { id: existing.id, image_path: existing.image_path }
+        : null;
+      if (!current) {
+        const { data, error } = await supabase
+          .from("submissions")
+          .select("id, image_path")
+          .eq("week_id", week.id)
+          .eq("user_id", userId)
+          .maybeSingle();
         if (error) throw error;
-        if (file && existing.image_path !== image_path) {
-          await supabase.storage.from("sketches").remove([existing.image_path]);
-        }
-      } else {
-        const { error } = await supabase.from("submissions").insert({ ...fields, week_id: week.id, user_id: userId });
-        if (error) throw error;
+        current = data;
       }
-      toast.success(existing ? "Sketch updated" : "Sketch submitted");
+
+      if (!current) {
+        const { error } = await supabase.from("submissions").insert({ ...fields, week_id: week.id, user_id: userId });
+        if (error && error.code !== "23505") throw error;
+        if (error) {
+          // Created concurrently — fall back to updating it
+          const { data } = await supabase
+            .from("submissions").select("id, image_path").eq("week_id", week.id).eq("user_id", userId).single();
+          current = data;
+        }
+      }
+      if (current) {
+        const { error } = await supabase.from("submissions").update(fields).eq("id", current.id);
+        if (error) throw error;
+        if (file && current.image_path !== image_path) {
+          await supabase.storage.from("sketches").remove([current.image_path]);
+        }
+      }
+      toast.success(current ? "Sketch updated" : "Sketch submitted");
       qc.invalidateQueries({ queryKey: ["sketches"] });
       setOpen(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      const msg =
+        err && typeof err === "object" && "message" in err && typeof err.message === "string" && err.message
+          ? err.message
+          : "Something went wrong";
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
